@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="imageGen.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Image Genratior</title>
+</head>
+<body>
+  <section>
+    <nav class="navBar">
+      <div class="navTitle">Image Genratior</div>
+      <ul class="navList">
+        <li class="navItems"><a href="#">Home</a></li>
+        <li class="navItems"><a href="#">About Us</a></li>
+        <li class="navItems"><a href="#">Genrate Images</a></li>
+        <li class="navItems"><a href="#">How to use</a></li>
+      </ul>
+    </nav>
+  </section>
+  <main class="container">
+    <section class="intractiveSection">
+      <div class="output">
+      <div class="output-images">
+        </div>
+      </div>
+      <div class="textInput">
+        
+      <input type="text" name="inputReq" id="textArea" placeholder="Write Your Imagination...">
+
+      </input>
+
+      </div>
+          <div class="textInput">
+          <select name="selectApi" id="selectApi" title="selectMode" class="change_Api">
+            <option value="selectTag" selected disabled>-- Select an API --</option>
+            <optgroup label="Free for Search Image" class="lable">
+            <option value="unsplash" class="options">unsplash</option>
+            <option value="pixlab" class="options" >PIXLAB</option>
+            </optgroup>
+          <optgroup class="lable" label="Genrate Image Using AI">
+           <option value="runway" class="options" >Genrate Image</option>
+           </optgroup>
+        </select>
+      <div class="btn">
+       <button class="generate-btn genrateBtn" type="button">Generate</button>
+       
+       </div>
+    </section>
+  </main>
+
+<script src="imageGen.js"></script>
+</body>
+</html>
