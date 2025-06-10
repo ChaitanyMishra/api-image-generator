@@ -101,15 +101,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
     
+  async function downloadImage(url, filename) {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      showErrorOverlay('Failed to download image. Please try again.');
+    }
+  }
+
   function renderImages(urls, source) {
     outputArea.innerHTML = '';
-    urls.forEach(url => {
+    urls.forEach((url, index) => {
+      const container = document.createElement('div');
+      container.classList.add('image-container');
+      
       const img = document.createElement('img');
       img.src = url;
       img.alt = `Result from ${source}`;
       img.loading = "lazy";
       img.classList.add('imgStyle');
-      outputArea.appendChild(img);
+      
+      const downloadBtn = document.createElement('button');
+      downloadBtn.classList.add('download-btn');
+      const downloadIcon = document.createElement('img');
+      downloadIcon.src = 'down.png';
+      downloadIcon.alt = 'Download';
+      downloadBtn.appendChild(downloadIcon);
+
+      downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        downloadImage(url, `${source.toLowerCase()}-image-${index + 1}.jpg`);
+      });
+
+      container.appendChild(img);
+      container.appendChild(downloadBtn);
+      outputArea.appendChild(container);
     });
   }
 
