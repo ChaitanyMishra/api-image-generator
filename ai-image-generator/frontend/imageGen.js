@@ -20,8 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
       fetchFromUnsplash(query);
     } else if(selectApi === 'pixlab') {
       fetchFromPixabay(query);
-    } else if(selectApi === 'runway') {
-      fetchFromRunware(query);
     }
     outputArea.innerHTML = `<p class="loading">Loading...</p>`;
   }
@@ -71,36 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function fetchFromRunware(query) {
-    try {
-      const response = await fetch('http://localhost:3000/api/runware', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log("Runware Response:", result);
-
-      const imgUrl = result.data?.[0]?.imageURL || result.data?.[0]?.imgUrl;
-      if (imgUrl) {
-        renderImages([imgUrl], "Runware");
-      } else {
-        showErrorOverlay("Runware returned no valid image.");
-      }
-
-    } catch (error) {
-      console.error("Runware API Error:", error);
-      showErrorOverlay("Something went wrong with Runware.");
-    }
-  }
-    
   async function downloadImage(url, filename) {
     try {
       const response = await fetch(url);
