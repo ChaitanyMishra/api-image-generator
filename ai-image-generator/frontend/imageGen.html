@@ -5,47 +5,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="imageGen.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <title>Image Genratior</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>Image Generator</title>
 </head>
 <body>
-  <section>
-    <nav class="navBar">
-      <div class="navTitle">Image Genratior</div>
-      <ul class="navList">
-        <li class="navItems"><a href="#">Home</a></li>
-        <li class="navItems"><a href="#">About Us</a></li>
-        <li class="navItems"><a href="#">Genrate Images</a></li>
-        <li class="navItems"><a href="#">How to use</a></li>
-      </ul>
-    </nav>
-  </section>
-  <main class="container">
-    <section class="intractiveSection">
-      <div class="output">
-      <div class="output-images">
+  <nav class="navBar">
+    <div class="navTitle">Image Generator</div>
+    <ul class="navList">
+      <li class="navItems"><a href="#home">Home</a></li>
+      <li class="navItems"><a href="#generate">Generate</a></li>
+      <li class="navItems"><a href="#how-to-use">How to use</a></li>
+      <li class="navItems"><a href="#about">About Us</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-container">
+    <aside class="sidebar">
+      <nav class="side-nav">
+        <ul>
+          <li><a href="#home">Overview</a></li>
+          <li><a href="#generate">Generate Images</a></li>
+          <li>
+            <a href="#how-to-use">How to Use</a>
+            <ul>
+              <li><a href="#step1">Enter Description</a></li>
+              <li><a href="#step2">Choose API</a></li>
+              <li><a href="#step3">Generate & Download</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About the Project</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <section id="home" class="content-section">
+        <h1>AI Image Generator</h1>
+        <p class="intro-text">
+          Transform your text descriptions into beautiful images using our powerful image generation tool.
+          Search through millions of professional photos from Unsplash and Pixabay.
+        </p>
+      </section>
+
+      <section id="generate" class="content-section">
+        <h2>Generate Images</h2>
+        <div class="generator-container">
+          <div class="input-group">
+            <input type="text" name="inputReq" id="textArea" placeholder="Write your image description...">
+            <div class="controls">
+              <select name="selectApi" id="selectApi" title="selectMode" class="change_Api">
+                <option value="selectTag" selected disabled>-- Select an API --</option>
+                <option value="unsplash">Unsplash</option>
+                <option value="pixlab">Pixabay</option>
+              </select>
+              <button class="generate-btn genrateBtn" type="button">
+                <i class="fas fa-magic"></i> Generate
+              </button>
+            </div>
+          </div>
+          <div class="output">
+            <div class="output-images"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-to-use" class="content-section">
+        <h2>How to Use</h2>
+        <div class="steps">
+          <div id="step1" class="step">
+            <h3>1. Enter Description</h3>
+            <p>Type a detailed description of the image you're looking for. Be specific to get the best results.</p>
+          </div>
+          <div id="step2" class="step">
+            <h3>2. Choose API</h3>
+            <p>Select your preferred image source:</p>
+            <ul>
+              <li><strong>Unsplash:</strong> High-quality, professional photographs</li>
+              <li><strong>Pixabay:</strong> Diverse collection of images and illustrations</li>
+            </ul>
+          </div>
+          <div id="step3" class="step">
+            <h3>3. Generate & Download</h3>
+            <p>Click Generate and wait for your results. Hover over any image to reveal the download button.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="content-section">
+        <h2>About the Project</h2>
+        <p>This Image Generator is designed to make image discovery accessible to everyone. We leverage powerful APIs to provide you with high-quality results instantly.</p>
+        
+        <div class="api-info">
+          <div class="api">
+            <h3><i class="fas fa-camera"></i> Unsplash API</h3>
+            <p>Access millions of high-resolution photos from professional photographers worldwide.</p>
+          </div>
+          <div class="api">
+            <h3><i class="fas fa-images"></i> Pixabay API</h3>
+            <p>Browse through a vast collection of user-submitted images, illustrations, and vectors.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        <h3>Image Generator</h3>
+        <p>Transform your ideas into beautiful images</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <nav>
+          <a href="#home">Home</a>
+          <a href="#generate">Generate</a>
+          <a href="#how-to-use">How to Use</a>
+          <a href="#about">About</a>
+        </nav>
+      </div>
+      <div class="api-credits">
+        <h4>Powered By</h4>
+        <div class="api-logos">
+          <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Unsplash</a>
+          <a href="https://pixabay.com" target="_blank" rel="noopener noreferrer">Pixabay</a>
         </div>
       </div>
-      <div class="textInput">
-        
-      <input type="text" name="inputReq" id="textArea" placeholder="Write Your Imagination...">
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Image Generator. All rights reserved.</p>
+      <p>Made by Chaitany Mishra</p>
+    </div>
+  </footer>
 
-      </input>
-
-      </div>
-          <div class="textInput">          <select name="selectApi" id="selectApi" title="selectMode" class="change_Api">
-            <option value="selectTag" selected disabled>-- Select an API --</option>
-            <optgroup label="Free for Search Image" class="lable">
-            <option value="unsplash" class="options">unsplash</option>
-            <option value="pixlab" class="options" >PIXLAB</option>
-            </optgroup>
-        </select>
-      <div class="btn">
-       <button class="generate-btn genrateBtn" type="button">Generate</button>
-       
-       </div>
-    </section>
-  </main>
-
-<script src="imageGen.js"></script>
+  <script src="imageGen.js"></script>
 </body>
 </html>

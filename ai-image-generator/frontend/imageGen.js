@@ -1,27 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Set dark theme by default
+  document.documentElement.setAttribute('data-theme', 'dark');
+
+  // Smooth scroll for navigation
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+
   const textArea = document.querySelector('#textArea');
   const outputArea = document.querySelector('.output-images');
-  const genrateBtn = document.querySelector('.genrateBtn');
-  const reGenrateBtn = document.querySelector('.reGenrateBtn');
+  const generateBtn = document.querySelector('.genrateBtn');
+  const loadingMessage = '<p class="loading"><i class="fas fa-spinner fa-spin"></i> Generating images...</p>';
   
-  function handleSearch(e) {
+  function handleSearch() {
     const selectApi = document.querySelector('#selectApi').value;
-    console.log(selectApi)
-    genrateBtn.innerHTML = `Generating...`;
-    setTimeout(() => {
-      genrateBtn.innerHTML = `Generate`;
-    }, 1500);
+    if (selectApi === 'selectTag') {
+      showErrorOverlay("Please select an image source (Unsplash or Pixabay)");
+      return;
+    }
     
     const query = textArea.value.trim();
     if (!query) {
-      showErrorOverlay("Search Box Cannot Be Empty!");
+      showErrorOverlay("Please enter an image description!");
       return;
-    } else if(selectApi === 'unsplash') {
+    }
+
+    generateBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
+    generateBtn.disabled = true;
+    
+    outputArea.innerHTML = loadingMessage;
+    
+    if (selectApi === 'unsplash') {
       fetchFromUnsplash(query);
-    } else if(selectApi === 'pixlab') {
+    } else if (selectApi === 'pixlab') {
       fetchFromPixabay(query);
     }
-    outputArea.innerHTML = `<p class="loading">Loading...</p>`;
   }
 
   async function fetchFromUnsplash(query) {
@@ -38,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) throw new Error("Unsplash API failed");
       const data = await response.json();
       if (data.results.length === 0) {
-        throw new Error("No images on Unsplash");
+        throw new Error("No images found on Unsplash");
       }
       renderImages(data.results.map(img => img.urls.regular), "Unsplash");
     } catch (err) {
@@ -60,39 +82,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) throw new Error("Pixabay API failed");
       const data = await response.json();
       if (data.hits.length === 0) {
-        throw new Error("No images on Pixabay");
+        throw new Error("No images found on Pixabay");
       }
       renderImages(data.hits.map(img => img.webformatURL), "Pixabay");
     } catch (err) {
-      showErrorOverlay("Image Not Found. Please try something else.");
+      showErrorOverlay("No images found. Please try a different description.");
       console.error("Both APIs failed:", err.message);
     }
   }
-
-  async function downloadImage(url, filename) {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (error) {
-      console.error('Download failed:', error);
-      showErrorOverlay('Failed to download image. Please try again.');
-    }
-  }
-
+    
   function renderImages(urls, source) {
     outputArea.innerHTML = '';
-    urls.forEach((url, index) => {
-      const container = document.createElement('div');
-      container.classList.add('image-container');
-      
+    urls.forEach(url => {
+      const imgContainer = document.createElement('div');
+      imgContainer.classList.add('img-container');
+
       const img = document.createElement('img');
       img.src = url;
       img.alt = `Result from ${source}`;
@@ -100,62 +104,80 @@ document.addEventListener('DOMContentLoaded', () => {
       img.classList.add('imgStyle');
       
       const downloadBtn = document.createElement('button');
+      downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
       downloadBtn.classList.add('download-btn');
-      const downloadIcon = document.createElement('img');
-      downloadIcon.src = 'down.png';
-      downloadIcon.alt = 'Download';
-      downloadBtn.appendChild(downloadIcon);
+      downloadBtn.addEventListener('click', () => downloadImage(url));
 
-      downloadBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        downloadImage(url, `${source.toLowerCase()}-image-${index + 1}.jpg`);
-      });
-
-      container.appendChild(img);
-      container.appendChild(downloadBtn);
-      outputArea.appendChild(container);
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(downloadBtn);
+      outputArea.appendChild(imgContainer);
     });
   }
 
+  async function downloadImage(url) {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'generated-image.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      showErrorOverlay("Failed to download image. Please try again.");
+    }
+  }
+
   function showErrorOverlay(message) {
-    if (document.getElementById('errorOverlay')) return;
+    if (document.getElementById('errorOverlay')) {
+      document.body.removeChild(document.getElementById('errorOverlay'));
+    }
 
     const overlay = document.createElement('div');
     overlay.id = 'errorOverlay';
-    Object.assign(overlay.style, {
-      position: 'fixed',
-      top: 0, left: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'rgba(15, 12, 41, 0.9)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 9999,
-      backdropFilter: 'blur(4px)',
-      flexDirection: 'column',
-    });
-
-
 
     const box = document.createElement('div');
-    box.innerHTML = `
-      <p style="color: #fef08a; font-size: 1.2rem; font-weight: bold; text-align: center;">${message}</p>
-    `;
+    box.style.background = 'var(--surface)';
+    box.style.padding = 'var(--space-xl)';
+    box.style.borderRadius = 'var(--border-radius-md)';
+    box.style.maxWidth = '90%';
+    box.style.width = '400px';
+    box.style.textAlign = 'center';
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-circle';
+    icon.style.color = 'var(--primary)';
+    icon.style.fontSize = '2rem';
+    icon.style.marginBottom = 'var(--space-md)';
+
+    const text = document.createElement('p');
+    text.style.color = 'var(--text)';
+    text.style.fontSize = '1.2rem';
+    text.style.marginBottom = 'var(--space-lg)';
+    text.textContent = message;
 
     const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Close';
     closeBtn.className = 'generate-btn';
-    closeBtn.style.marginTop = '20px';
+    closeBtn.innerHTML = '<i class="fas fa-times"></i> Close';
     closeBtn.onclick = () => document.body.removeChild(overlay);
 
+    box.appendChild(icon);
+    box.appendChild(text);
     box.appendChild(closeBtn);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
   }
 
-  genrateBtn.addEventListener('click', handleSearch);
+  generateBtn.addEventListener('click', handleSearch);
+  textArea.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  });
 });
 
 
