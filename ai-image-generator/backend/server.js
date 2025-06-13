@@ -1,61 +1,91 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Environment variables for API keys
-const UNSPLASH_API = process.env.UNSPLASH_API;
-const PIXABAY_API = process.env.PIXABAY_API;
-const RUNWARE_API = process.env.RUNWARE_API;
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100,
+    message: 'Too many requests from this IP, please try again after 15 minutes.',
+});
+app.use('/api', limiter);
 
-// Proxy route for Unsplash
+// Environment variables
+const {
+    UNSPLASH_API,
+    PIXABAY_API,
+    RUNWARE_API,
+    RUNWARE_UUID,
+    RUNWARE_MODEL,
+    PORT = 3000
+} = process.env;
+
+// ======================== ROUTES ========================
+
+// Unsplash Proxy
 app.post('/api/unsplash', async (req, res) => {
     try {
-        const { query, page } = req.body;
-        const response = await fetch(
-            `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&client_id=${UNSPLASH_API}&page=${page}&per_page=6`
-        );
+        const { query, page = 1 } = req.body;
+        if (!query || typeof query !== 'string') {
+            return res.status(400).json({ error: 'Invalid query for Unsplash' });
+        }
+
+        const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&client_id=${UNSPLASH_API}&page=${page}&per_page=6`;
+        const response = await fetch(url);
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Unsplash API error:', error);
+        res.status(500).json({ error: 'Failed to fetch from Unsplash' });
     }
 });
 
-// Proxy route for Pixabay
+// Pixabay Proxy
 app.post('/api/pixabay', async (req, res) => {
     try {
         const { query } = req.body;
-        const response = await fetch(
-            `https://pixabay.com/api/?key=${PIXABAY_API}&q=${encodeURIComponent(query)}&image_type=photo&per_page=6`
-        );
+        if (!query || typeof query !== 'string') {
+            return res.status(400).json({ error: 'Invalid query for Pixabay' });
+        }
+
+        const url = `https://pixabay.com/api/?key=${PIXABAY_API}&q=${encodeURIComponent(query)}&image_type=photo&per_page=6`;
+        const response = await fetch(url);
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Pixabay API error:', error);
+        res.status(500).json({ error: 'Failed to fetch from Pixabay' });
     }
 });
 
-// Proxy route for Runware
+// Runware Proxy
 app.post('/api/runware', async (req, res) => {
     try {
         const { query } = req.body;
-        const rawData = [
+        if (!query || typeof query !== 'string') {
+            return res.status(400).json({ error: 'Invalid prompt for Runware' });
+        }
+
+        const requestBody = [
             {
                 taskType: "authentication",
                 apiKey: RUNWARE_API,
             },
             {
                 taskType: "imageInference",
-                taskUUID: "39d7207a-87ef-4c93-8082-1431f9c1dc97",
+                taskUUID: RUNWARE_UUID,
                 positivePrompt: query,
                 width: 512,
                 height: 512,
-                model: "civitai:102438@133677",
+                model: RUNWARE_MODEL,
                 numberResults: 1,
             },
         ];
@@ -65,17 +95,18 @@ app.post('/api/runware', async (req, res) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(rawData),
+            body: JSON.stringify(requestBody),
         });
 
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Runware API error:', error);
+        res.status(500).json({ error: 'Failed to fetch from Runware' });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+// ======================== START SERVER ========================
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Server is running on port ${PORT}`);
 });

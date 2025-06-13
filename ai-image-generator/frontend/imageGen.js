@@ -1,71 +1,111 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Set dark theme by default
-  document.documentElement.setAttribute('data-theme', 'dark');
+  // Mobile menu toggle
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const navList = document.querySelector('.navList');
+  const body = document.body;
+  
+  if (mobileMenuBtn && navList) {
+    const toggleMenu = (open = true) => {
+      if (typeof open !== 'boolean') {
+        open = !navList.classList.contains('active');
+      }
+      navList.classList.toggle('active', open);
+      body.classList.toggle('menu-open', open);
+      body.style.overflow = open ? 'hidden' : '';
+      
+      const icon = mobileMenuBtn.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-bars', !open);
+        icon.classList.toggle('fa-times', open);
+      }
+    };
 
-  // Smooth scroll for navigation
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+    // Toggle menu when hamburger is clicked
+    mobileMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    // Close menu when clicking anywhere outside
+    document.addEventListener('click', (e) => {
+      if (navList.classList.contains('active') && 
+          !navList.contains(e.target) && 
+          !mobileMenuBtn.contains(e.target)) {
+        toggleMenu(false);
       }
     });
-  });
 
-  const textArea = document.querySelector('#textArea');
-  const outputArea = document.querySelector('.output-images');
-  const generateBtn = document.querySelector('.genrateBtn');
-  const loadingMessage = '<p class="loading"><i class="fas fa-spinner fa-spin"></i> Generating images...</p>';
-  
-  function handleSearch() {
-    const selectApi = document.querySelector('#selectApi').value;
-    if (selectApi === 'selectTag') {
-      showErrorOverlay("Please select an image source (Unsplash or Pixabay)");
-      return;
-    }
-    
-    const query = textArea.value.trim();
-    if (!query) {
-      showErrorOverlay("Please enter an image description!");
-      return;
-    }
+    // Close menu when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navList.classList.contains('active')) {
+        toggleMenu(false);
+      }
+    });
 
-    generateBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
-    generateBtn.disabled = true;
-    
-    outputArea.innerHTML = loadingMessage;
-    
-    if (selectApi === 'unsplash') {
-      fetchFromUnsplash(query);
-    } else if (selectApi === 'pixlab') {
-      fetchFromPixabay(query);
-    }
+    // Close menu when clicking on navigation links
+    navList.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        toggleMenu(false);
+        
+        // Smooth scroll to section
+        const href = link.getAttribute('href');
+        if (href.startsWith('#')) {
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+
+    // Handle touch events for better mobile experience
+    let touchStartY;
+    navList.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    navList.addEventListener('touchmove', (e) => {
+      if (!touchStartY) return;
+      
+      const touchY = e.touches[0].clientY;
+      const diff = touchStartY - touchY;
+
+      // If swiping up, close the menu
+      if (diff > 50) {
+        toggleMenu(false);
+        touchStartY = null;
+      }
+    }, { passive: true });
   }
 
+  // API Functions
   async function fetchFromUnsplash(query) {
-    const page = Math.floor(Math.random() * 30) + 1;
     try {
       const response = await fetch('http://localhost:3000/api/unsplash', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query, page }),
+        body: JSON.stringify({ query }),
       });
-      
-      if (!response.ok) throw new Error("Unsplash API failed");
-      const data = await response.json();
-      if (data.results.length === 0) {
-        throw new Error("No images found on Unsplash");
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch from Unsplash');
       }
-      renderImages(data.results.map(img => img.urls.regular), "Unsplash");
-    } catch (err) {
-      console.warn("Trying fallback (Pixabay)...", err.message);
-      fetchFromPixabay(query);
+
+      const data = await response.json();
+      
+      if (!data.results || data.results.length === 0) {
+        showErrorOverlay('No images found on Unsplash. Trying Pixabay...');
+        return fetchFromPixabay(query);
+      }
+
+      renderImages(data.results.map(img => img.urls.regular), 'Unsplash');
+      enableGenerateButton();
+    } catch (error) {
+      console.error('Unsplash error:', error);
+      return fetchFromPixabay(query);
     }
   }
 
@@ -78,19 +118,28 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify({ query }),
       });
-      
-      if (!response.ok) throw new Error("Pixabay API failed");
-      const data = await response.json();
-      if (data.hits.length === 0) {
-        throw new Error("No images found on Pixabay");
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch from Pixabay');
       }
-      renderImages(data.hits.map(img => img.webformatURL), "Pixabay");
-    } catch (err) {
-      showErrorOverlay("No images found. Please try a different description.");
-      console.error("Both APIs failed:", err.message);
+
+      const data = await response.json();
+      
+      if (!data.hits || data.hits.length === 0) {
+        showErrorOverlay('No images found. Please try a different description.');
+        enableGenerateButton();
+        return;
+      }
+
+      renderImages(data.hits.map(img => img.webformatURL), 'Pixabay');
+      enableGenerateButton();
+    } catch (error) {
+      console.error('Pixabay error:', error);
+      showErrorOverlay('Failed to generate images. Please try again.');
+      enableGenerateButton();
     }
   }
-    
+
   function renderImages(urls, source) {
     outputArea.innerHTML = '';
     urls.forEach(url => {
@@ -99,13 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const img = document.createElement('img');
       img.src = url;
-      img.alt = `Result from ${source}`;
-      img.loading = "lazy";
+      img.alt = `Generated image from ${source}`;
       img.classList.add('imgStyle');
-      
+      img.loading = 'lazy';
+
       const downloadBtn = document.createElement('button');
-      downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
       downloadBtn.classList.add('download-btn');
+      downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
       downloadBtn.addEventListener('click', () => downloadImage(url));
 
       imgContainer.appendChild(img);
@@ -122,63 +171,154 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = 'generated-image.jpg';
+      link.download = `generated-image-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
-      showErrorOverlay("Failed to download image. Please try again.");
+      console.error('Download error:', error);
+      showErrorOverlay('Failed to download image. Please try again.');
     }
   }
 
+  function enableGenerateButton() {
+    if (!generateBtn) return;
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = 'Generate';
+  }
+
+  // Main functionality
+  const textArea = document.querySelector('#textArea');
+  const outputArea = document.querySelector('.output-images');
+  const generateBtn = document.querySelector('.genrateBtn');
+  const loadingMessage = '<p class="loading"><i class="fas fa-spinner fa-spin"></i> Generating images...</p>';
+
+  function handleSearch() {
+    const selectApi = document.querySelector('#selectApi')?.value;
+    if (!selectApi || selectApi === 'selectTag') {
+      showErrorOverlay("Please select an image source (Unsplash or Pixabay)");
+      return;
+    }
+    
+    const query = textArea?.value?.trim();
+    if (!query) {
+      showErrorOverlay("Please enter an image description!");
+      return;
+    }
+
+    if (!generateBtn || !outputArea) return;
+
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    generateBtn.disabled = true;
+    outputArea.innerHTML = loadingMessage;
+    
+    if (selectApi === 'unsplash') {
+      fetchFromUnsplash(query);
+    } else if (selectApi === 'pixlab') {
+      fetchFromPixabay(query);
+    }
+  }
+
+  if (generateBtn) {
+    generateBtn.addEventListener('click', handleSearch);
+  }
+
+  if (textArea) {
+    textArea.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSearch();
+      }
+    });
+  }
+
+  // Error overlay function
   function showErrorOverlay(message) {
-    if (document.getElementById('errorOverlay')) {
-      document.body.removeChild(document.getElementById('errorOverlay'));
+    const existing = document.getElementById('errorOverlay');
+    if (existing) {
+      existing.remove();
     }
 
     const overlay = document.createElement('div');
     overlay.id = 'errorOverlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    `;
 
     const box = document.createElement('div');
-    box.style.background = 'var(--surface)';
-    box.style.padding = 'var(--space-xl)';
-    box.style.borderRadius = 'var(--border-radius-md)';
-    box.style.maxWidth = '90%';
-    box.style.width = '400px';
-    box.style.textAlign = 'center';
+    box.style.cssText = `
+      background: var(--surface);
+      padding: var(--space-xl);
+      border-radius: var(--border-radius-md);
+      max-width: 90%;
+      width: 400px;
+      text-align: center;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    `;
 
     const icon = document.createElement('i');
     icon.className = 'fas fa-exclamation-circle';
-    icon.style.color = 'var(--primary)';
-    icon.style.fontSize = '2rem';
-    icon.style.marginBottom = 'var(--space-md)';
+    icon.style.cssText = `
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: var(--space-md);
+      display: block;
+    `;
 
     const text = document.createElement('p');
-    text.style.color = 'var(--text)';
-    text.style.fontSize = '1.2rem';
-    text.style.marginBottom = 'var(--space-lg)';
+    text.style.cssText = `
+      color: var(--text);
+      font-size: 1.2rem;
+      margin-bottom: var(--space-lg);
+    `;
     text.textContent = message;
 
     const closeBtn = document.createElement('button');
     closeBtn.className = 'generate-btn';
     closeBtn.innerHTML = '<i class="fas fa-times"></i> Close';
-    closeBtn.onclick = () => document.body.removeChild(overlay);
+    closeBtn.onclick = () => {
+      overlay.style.opacity = '0';
+      box.style.transform = 'translateY(20px)';
+      setTimeout(() => overlay.remove(), 300);
+    };
 
     box.appendChild(icon);
     box.appendChild(text);
     box.appendChild(closeBtn);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+      box.style.transform = 'translateY(0)';
+    });
   }
 
-  generateBtn.addEventListener('click', handleSearch);
-  textArea.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  });
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+  }
 });
-
-
-
