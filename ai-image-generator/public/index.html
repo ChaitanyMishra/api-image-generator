@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="imageGen.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>SnapFetch – Search Free Images by Prompt</title>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <a href="/"><img src="logo.png" alt="SnapFetch Logo"></a>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <h1>Search Free Images by Prompt</h1>
+      <form id="image-search-form">
+        <input type="text" id="prompt" placeholder="Enter your prompt here..." required>
+        <button type="submit">Search</button>
+      </form>
+      <div id="image-results" class="image-results"></div>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 SnapFetch. All rights reserved.</p>
+    </div>
+  </footer>
+  <script src="imageGen.js"></script>
+</body>
+</html>

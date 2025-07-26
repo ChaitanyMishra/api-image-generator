@@ -1,0 +1,13 @@
+{
+  "root": ".",
+  "routes": [
+    {
+      "route": "/api/*",
+      "serve": false
+    },
+    {
+      "route": "/*",
+      "serve": "index.html"
+    }
+  ]
+}

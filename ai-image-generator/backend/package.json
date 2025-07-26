@@ -1,15 +1,14 @@
 {
-  "name": "backend",
+  "name": "snapfetch-fullstack",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Chaitanya Mishra",
+  "license": "MIT",
+  "description": "SnapFetch fullstack image search app for Render deployment.",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

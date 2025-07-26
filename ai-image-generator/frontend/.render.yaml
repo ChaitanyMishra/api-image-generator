@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: snapfetch-frontend
+    env: static
+    staticPublishPath: .
+    buildCommand: ''
+    startCommand: ''

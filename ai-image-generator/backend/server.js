@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const path = require('path');
 
 const app = express();
 
@@ -104,6 +105,14 @@ app.post('/api/runware', async (req, res) => {
         console.error('Runware API error:', error);
         res.status(500).json({ error: 'Failed to fetch from Runware' });
     }
+});
+
+// Serve static files from public/
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Send index.html for root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // ======================== START SERVER ========================

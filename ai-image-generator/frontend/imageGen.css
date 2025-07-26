@@ -125,7 +125,9 @@ html, body {
   margin-inline: auto;
   height: 100vh;
 }
-
+h1{
+  text-align:center;
+}
 .intractiveSection {
   display: flex;
   flex-wrap: wrap;
