@@ -80,9 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // API Functions
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000' // dev mode
+  : 'https://snapfetch-ow6v.onrender.com'; // production backend
   async function fetchFromUnsplash(query) {
     try {
-      const response = await fetch('http://localhost:3000/api/unsplash', {
+      const response = await fetch(`${API_BASE}/api/unsplash`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function fetchFromPixabay(query) {
     try {
-      const response = await fetch('http://localhost:3000/api/pixabay', {
+      const response = await fetch(`${API_BASE}/api/pixabay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
