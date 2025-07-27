@@ -27,9 +27,34 @@
   <link rel="dns-prefetch" href="//fonts.googleapis.com">
   <link rel="dns-prefetch" href="//fonts.gstatic.com">
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
-  <link rel="stylesheet" href="imageGen.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Inline critical CSS for above-the-fold content -->
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; margin: 0; background: #fff; color: #222; }
+    .navBar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background: #0d1117; color: #fff; }
+    .navTitle { font-size: 1.5rem; font-weight: 700; }
+    .mobile-menu-btn { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+    .navList { list-style: none; display: flex; gap: 1rem; margin: 0; padding: 0; }
+    .navItems a { color: #fff; text-decoration: none; font-weight: 500; }
+    .main-content { padding: 2rem; }
+    .content-section { margin-bottom: 2rem; }
+    .footer { background: #0d1117; color: #fff; padding: 2rem 0; text-align: center; }
+    .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 2rem; }
+    .footer-info, .footer-links, .api-credits { flex: 1; min-width: 200px; }
+    .footer-bottom { margin-top: 1rem; font-size: 0.9rem; }
+    @media (max-width: 768px) {
+      .navList { flex-direction: column; gap: 0.5rem; }
+      .main-content { padding: 1rem; }
+      .footer-content { flex-direction: column; gap: 1rem; }
+    }
+  </style>
+  <!-- Load non-critical CSS async -->
+  <link rel="preload" href="imageGen.css" as="style" onload="this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="imageGen.css"></noscript>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+  <!-- Only load FontAwesome icons if needed -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
   <title>SnapFetch – Search Free Images by Prompt</title>
   <!-- Structured Data -->
   <script type="application/ld+json">
@@ -180,6 +205,7 @@
     </div>
   </footer>
 
+  <!-- Minified and deferred JS (replace with actual minified file in production) -->
   <script src="imageGen.js" defer></script>
 </body>
 </html>
