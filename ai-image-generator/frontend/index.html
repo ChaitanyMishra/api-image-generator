@@ -37,6 +37,7 @@
     .navItems a { color: #fff; text-decoration: none; font-weight: 500; }
     .main-content { padding: 2rem; }
     .content-section { margin-bottom: 2rem; }
+    h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
     .footer { background: #0d1117; color: #fff; padding: 2rem 0; text-align: center; }
     .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 2rem; }
     .footer-info, .footer-links, .api-credits { flex: 1; min-width: 200px; }
@@ -52,9 +53,7 @@
   <noscript><link rel="stylesheet" href="imageGen.css"></noscript>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
-  <!-- Only load FontAwesome icons if needed -->
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
+  <!-- Use SVG icons directly for performance, remove FontAwesome CSS -->
   <title>SnapFetch – Search Free Images by Prompt</title>
   <!-- Structured Data -->
   <script type="application/ld+json">
