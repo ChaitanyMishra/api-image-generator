@@ -195,7 +195,7 @@ const API_BASE = window.location.hostname === 'localhost'
   const textArea = document.querySelector('#textArea');
   const outputArea = document.querySelector('.output-images');
   const generateBtn = document.querySelector('.genrateBtn');
-  const loadingMessage = '<p class="loading"><i class="fas fa-spinner fa-spin"></i> Generating images...</p>';
+  const loadingMessage = '<p class="loading"><span class="loading-spinner" style="display:inline-block;width:1.5rem;height:1.5rem;border:3px solid rgba(0,0,0,0.1);border-radius:50%;border-top-color:#222;animation:spin 0.8s linear infinite;"></span> Generating images...</p>';
 
   function handleSearch() {
     const selectApi = document.querySelector('#selectApi')?.value;
